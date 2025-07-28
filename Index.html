@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Marketing Dashboard - MHC Group</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .dashboard {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .date-range {
+            opacity: 0.8;
+            font-size: 1.1em;
+        }
+        
+        .nav-tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 15px 20px;
+            background: #f8f9fa;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .tab:hover {
+            background: #e9ecef;
+        }
+        
+        .tab.active {
+            background: white;
+            border-bottom: 3px solid #667eea;
+            color: #667eea;
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 30px;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .metric-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .metric-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .metric-label {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .charts-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .chart-container {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .chart-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #2c3e50;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .data-table th {
+            background: #2c3e50;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        .data-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .data-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .performance-indicator {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+        
+        .high-performance {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .medium-performance {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .low-performance {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .filter-section {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .filter-select {
+            padding: 10px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+        }
+        
+        @media (max-width: 768px) {
+            .charts-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-tabs {
+                flex-direction: column;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <div class="header">
+            <h1>Digital Marketing Dashboard</h1>
+            <div class="date-range">MHC Group • July 21-27, 2025</div>
+        </div>
+        
+        <div class="nav-tabs">
+            <button class="tab active" onclick="showTab('overview')">Overview</button>
+            <button class="tab" onclick="showTab('instagram')">Instagram</button>
+            <button class="tab" onclick="showTab('facebook')">Facebook</button>
+            <button class="tab" onclick="showTab('linkedin')">LinkedIn</button>
+            <button class="tab" onclick="showTab('ads')">Paid Campaigns</button>
+        </div>
+        
+        <div id="overview" class="tab-content active">
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-value">295</div>
+                    <div class="metric-label">New Instagram Followers</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">27</div>
+                    <div class="metric-label">New Facebook Followers</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">97</div>
+                    <div class="metric-label">New LinkedIn Followers</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">80</div>
+                    <div class="metric-label">Total Leads Generated</div>
+                </div>
+            </div>
+            
+            <div class="charts-section">
+                <div class="chart-container">
+                    <div class="chart-title">Top Performing Accounts (Instagram Followers)</div>
+                    <canvas id="topPerformersChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-title">Platform Comparison (New Followers)</div>
+                    <canvas id="platformChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-container">
+                <div class="chart-title">Campaign Performance Overview</div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Account</th>
+                            <th>Instagram Followers</th>
+                            <th>Instagram Reach</th>
+                            <th>Facebook Reach</th>
+                            <th>Performance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>MH Cockpit</strong></td>
+                            <td>88</td>
+                            <td>256,828</td>
+                            <td>24,142</td>
+                            <td><span class="performance-indicator high-performance">High</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>MH Intellect</strong></td>
+                            <td>115</td>
+                            <td>229,796</td>
+                            <td>24,397</td>
+                            <td><span class="performance-indicator high-performance">High</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>MH Cognition</strong></td>
+                            <td>92</td>
+                            <td>111,242</td>
+                            <td>13,398</td>
+                            <td><span class="performance-indicator high-performance">High</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Vels Aviation</strong></td>
+                            <td>32</td>
+                            <td>17,999</td>
+                            <td>1,021</td>
+                            <td><span class="performance-indicator medium-performance">Medium</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Jamal Aviation</strong></td>
+                            <td>0</td>
+                            <td>131</td>
+                            <td>1</td>
+                            <td><span class="performance-indicator low-performance">Low</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div id="instagram" class="tab-content">
+            <div class="filter-section">
+                <label>Filter by Performance:</label>
+                <select class="filter-select" onchange="filterInstagramData(this.value)">
+                    <option value="all">All Accounts</option>
+                    <option value="high">High Performers</option>
+                    <option value="medium">Medium Performers</option>
+                    <option value="low">Low Performers</option>
+                </select>
+            </div>
+            
+            <div class="charts-section">
+                <div class="chart-container">
+                    <div class="chart-title">Instagram Reach vs Impressions</div>
+                    <canvas id="instagramReachChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-title">Follower Growth Distribution</div>
+                    <canvas id="followerGrowthChart"></canvas>
+                </div>
+            </div>
+            
+            <table class="data-table" id="instagramTable">
+                <thead>
+                    <tr>
+                        <th>Account</th>
+                        <th>New Followers</th>
+                        <th>Total Followers</th>
+                        <th>Impressions</th>
+                        <th>Reach</th>
+                        <th>Content Posted</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr data-performance="high">
+                        <td>MH Intellect</td>
+                        <td>115</td>
+                        <td>541</td>
+                        <td>278,046</td>
+                        <td>229,796</td>
+                        <td>1 Video</td>
+                    </tr>
+                    <tr data-performance="high">
+                        <td>MH Cognition</td>
+                        <td>92</td>
+                        <td>564</td>
+                        <td>161,081</td>
+                        <td>111,242</td>
+                        <td>1 Video</td>
+                    </tr>
+                    <tr data-performance="high">
+                        <td>MH Cockpit</td>
+                        <td>88</td>
+                        <td>1,494</td>
+                        <td>220,246</td>
+                        <td>256,828</td>
+                        <td>2 Videos & 1 Poster</td>
+                    </tr>
+                    <tr data-performance="medium">
+                        <td>Vels Aviation</td>
+                        <td>32</td>
+                        <td>3,173</td>
+                        <td>36,211</td>
+                        <td>17,999</td>
+                        <td>1 Video & 1 Poster</td>
+                    </tr>
+                    <tr data-performance="low">
+                        <td>Crescent Aviation</td>
+                        <td>5</td>
+                        <td>594</td>
+                        <td>21,215</td>
+                        <td>14,942</td>
+                        <td>1 Video</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div id="facebook" class="tab-content">
+            <div class="charts-section">
+                <div class="chart-container">
+                    <div class="chart-title">Facebook vs Instagram Reach Comparison</div>
+                    <canvas id="facebookComparisonChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-title">Facebook Engagement Analysis</div>
+                    <canvas id="facebookEngagementChart"></canvas>
+                </div>
+            </div>
+            
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Account</th>
+                        <th>New Followers</th>
+                        <th>Total Followers</th>
+                        <th>Impressions</th>
+                        <th>Reach</th>
+                        <th>FB vs IG Reach Ratio</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>MH Intellect</td>
+                        <td>0</td>
+                        <td>16</td>
+                        <td>318,943</td>
+                        <td>24,397</td>
+                        <td>10.6%</td>
+                    </tr>
+                    <tr>
+                        <td>MH Cockpit</td>
+                        <td>14</td>
+                        <td>130</td>
+                        <td>325,748</td>
+                        <td>24,142</td>
+                        <td>9.4%</td>
+                    </tr>
+                    <tr>
+                        <td>MH Cognition</td>
+                        <td>11</td>
+                        <td>74</td>
+                        <td>208,317</td>
+                        <td>13,398</td>
+                        <td>12.0%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div id="linkedin" class="tab-content">
+            <div class="charts-section">
+                <div class="chart-container">
+                    <div class="chart-title">LinkedIn Follower Growth</div>
+                    <canvas id="linkedinGrowthChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-title">Page Views vs Impressions</div>
+                    <canvas id="linkedinEngagementChart"></canvas>
+                </div>
+            </div>
+            
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Account</th>
+                        <th>New Followers</th>
+                        <th>Total Followers</th>
+                        <th>Impressions</th>
+                        <th>Page Views</th>
+                        <th>Articles Posted</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>MH Cockpit</td>
+                        <td>80</td>
+                        <td>7,006</td>
+                        <td>2,436</td>
+                        <td>2,104</td>
+                        <td>3</td>
+                    </tr>
+                    <tr>
+                        <td>MH Intellect</td>
+                        <td>8</td>
+                        <td>338</td>
+                        <td>603</td>
+                        <td>71</td>
+                        <td>3</td>
+                    </tr>
+                    <tr>
+                        <td>MH Cognition</td>
+                        <td>7</td>
+                        <td>275</td>
+                        <td>708</td>
+                        <td>84</td>
+                        <td>3</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div id="ads" class="tab-content">
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-value">₹15,313</div>
+                    <div class="metric-label">Total Ad Spend</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">80</div>
+                    <div class="metric-label">Total Leads</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">₹191</div>
+                    <div class="metric-label">Avg Cost Per Lead</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">5,916</div>
+                    <div class="metric-label">Website Visits</div>
+                </div>
+            </div>
+            
+            <div class="charts-section">
+                <div class="chart-container">
+                    <div class="chart-title">Lead Generation Performance</div>
+                    <canvas id="leadGenChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-title">Cost Per Lead Analysis</div>
+                    <canvas id="costPerLeadChart"></canvas>
+                </div>
+            </div>
+            
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Campaign</th>
+                        <th>Type</th>
+                        <th>Leads/Visits</th>
+                        <th>Amount Spent</th>
+                        <th>Cost Per Result</th>
+                        <th>ROI Rating</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Crescent Aviation</td>
+                        <td>Lead</td>
+                        <td>34 leads</td>
+                        <td>₹2,505</td>
+                        <td>₹74/lead</td>
+                        <td><span class="performance-indicator high-performance">Excellent</span></td>
+                    </tr>
+                    <tr>
+                        <td>Vels Aviation</td>
+                        <td>Lead</td>
+                        <td>14 leads</td>
+                        <td>₹1,904</td>
+                        <td>₹136/lead</td>
+                        <td><span class="performance-indicator high-performance">Good</span></td>
+                    </tr>
+                    <tr>
+                        <td>MH Cockpit</td>
+                        <td>Lead</td>
+                        <td>16 leads</td>
+                        <td>₹2,784</td>
+                        <td>₹174/lead</td>
+                        <td><span class="performance-indicator medium-performance">Average</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching functionality
+        function showTab(tabName) {
+            // Hide all tab contents
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => content.classList.remove('active'));
+            
+            // Remove active class from all tabs
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Show selected tab content
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+            
+            // Initialize charts for the active tab
+            initializeCharts(tabName);
+        }
+
+        // Chart initialization
+        function initializeCharts(tabName) {
+            switch(tabName) {
+                case 'overview':
+                    initOverviewCharts();
+                    break;
+                case 'instagram':
+                    initInstagramCharts();
+                    break;
+                case 'facebook':
+                    initFacebookCharts();
+                    break;
+                case 'linkedin':
+                    initLinkedInCharts();
+                    break;
+                case 'ads':
+                    initAdsCharts();
+                    break;
+            }
+        }
+
+        function initOverviewCharts() {
+            // Top Performers Chart
+            const ctx1 = document.getElementById('topPerformersChart').getContext('2d');
+            new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: ['MH Intellect', 'MH Cognition', 'MH Cockpit', 'Vels Aviation', 'Crescent Aviation'],
+                    datasets: [{
+                        label: 'New Followers',
+                        data: [115, 92, 88, 32, 5],
+                        backgroundColor: ['#667eea', '#764ba2', '#f093fb', '#f5576c', '#4facfe']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // Platform Comparison Chart
+            const ctx2 = document.getElementById('platformChart').getContext('2d');
+            new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Instagram', 'Facebook', 'LinkedIn'],
+                    datasets: [{
+                        data: [295, 27, 97],
+                        backgroundColor: ['#E1306C', '#1877F2', '#0A66C2']
+                    }]
+                },
+                options: {
+                    responsive: true
+                }
+            });
+        }
+
+        function initInstagramCharts() {
+            // Instagram Reach Chart
+            const ctx = document.getElementById('instagramReachChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'Account Performance',
+                        data: [
+                            {x: 256828, y: 220246, label: 'MH Cockpit'},
+                            {x: 229796, y: 278046, label: 'MH Intellect'},
+                            {x: 111242, y: 161081, label: 'MH Cognition'},
+                            {x: 17999, y: 36211, label: 'Vels Aviation'},
+                            {x: 14942, y: 21215, label: 'Crescent Aviation'}
+                        ],
+                        backgroundColor: '#667eea'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Reach'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Impressions'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Follower Growth Chart
+            const ctx2 = document.getElementById('followerGrowthChart').getContext('2d');
+            new Chart(ctx2, {
+                type: 'pie',
+                data: {
+                    labels: ['MH Intellect', 'MH Cognition', 'MH Cockpit', 'Vels Aviation', 'Others'],
+                    datasets: [{
+                        data: [115, 92, 88, 32, 18],
+                        backgroundColor: ['#667eea', '#764ba2', '#f093fb', '#f5576c', '#4facfe']
+                    }]
+                },
+                options: {
+                    responsive: true
+                }
+            });
+        }
+
+        function initFacebookCharts() {
+            // Facebook vs Instagram Comparison
+            const ctx = document.getElementById('facebookComparisonChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['MH Cockpit', 'MH Cognition', 'MH Intellect'],
+                    datasets: [{
+                        label: 'Facebook Reach',
+                        data: [24142, 13398, 24397],
+                        backgroundColor: '#1877F2'
+                    }, {
+                        label: 'Instagram Reach',
+                        data: [256828, 111242, 229796],
+                        backgroundColor: '#E1306C'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // Facebook Engagement
+            const ctx2 = document.getElementById('facebookEngagementChart').getContext('2d');
+            new Chart(ctx2, {
+                type: 'line',
+                data: {
+                    labels: ['MH Cockpit', 'MH Cognition', 'MH Intellect'],
+                    datasets: [{
+                        label: 'FB/IG Reach Ratio (%)',
+                        data: [9.4, 12.0, 10.6],
+                        borderColor: '#1877F2',
+                        backgroundColor: 'rgba(24, 119, 242, 0.1)',
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 15
+                        }
+                    }
+                }
+            });
+        }
+
+        function initLinkedInCharts() {
+            // LinkedIn Growth
+            const ctx = document.getElementById('linkedinGrowthChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['MH Cockpit', 'MH Intellect', 'MH Cognition'],
+                    datasets: [{
+                        label: 'New Followers',
+                        data: [80, 8, 7],
+                        backgroundColor: '#0A66C2'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // LinkedIn Engagement
+            const ctx2 = document.getElementById('linkedinEngagementChart').getContext('2d');
+            new Chart(ctx2, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'Page Views vs Impressions',
+                        data: [
+                            {x: 2436, y: 2104, label: 'MH Cockpit'},
+                            {x: 603, y: 71, label: 'MH Intellect'},
+                            {x: 708, y: 84, label: 'MH Cognition'}
+                        ],
+                        backgroundColor: '#0A66C2'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Impressions'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Page Views'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function initAdsCharts() {
+            // Lead Generation Performance
+            const ctx = document.getElementById('leadGenChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Crescent Aviation', 'MH Cockpit', 'Vels Aviation', 'Bharath Aviation', 'Bharath Cognition'],
+                    datasets: [{
+                        label: 'Leads Generated',
+                        data: [34, 16, 14, 14, 2],
+                        backgroundColor: ['#28a745', '#17a2b8', '#ffc107', '#fd7e14', '#dc3545']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // Cost Per Lead
+            const ctx2 = document.getElementById('costPerLeadChart').getContext('2d');
+            new Chart(ctx2, {
+                type: 'line',
+                data: {
+                    labels: ['Crescent Aviation', 'Vels Aviation', 'Bharath Aviation', 'MH Cockpit', 'Bharath Cognition'],
+                    datasets: [{
+                        label: 'Cost Per Lead (₹)',
+                        data: [74, 136, 112, 174, 792],
+                        borderColor: '#dc3545',
+                        backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Filter functionality for Instagram data
+        function filterInstagramData(performance) {
+            const rows = document.querySelectorAll('#instagramTable tbody tr');
+            rows.forEach(row => {
+                if (performance === 'all' || row.dataset.performance === performance) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        // Initialize overview charts on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            initOverviewCharts();
+        });
+    </script>
+</body>
+</html>
